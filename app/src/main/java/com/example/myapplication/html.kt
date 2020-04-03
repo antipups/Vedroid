@@ -9,8 +9,11 @@ val html_code =
         <style>${style}</style>
     </head>
     <body>
-        <button value="Say hello" onClick="showAndroidToast('Приложение запущено!')" >Привет</button>
-    
+        <div class="mainDiv">
+            <button onClick="street_mode()" >Улица</button>
+            <button onClick="listen_audio()" >Прослушивание музыки</button>
+            <button onClick="all_off()" >Отключение всего</button>
+        </div>
         <script type="text/javascript">${script}</script>
     </body>
     </html>
