@@ -11,10 +11,10 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
 
 
 var mainContentResolver : ContentResolver? = null
+var wifi : WifiManager? = null
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         myWebView.addJavascriptInterface(WebAppInterface(this), "Android")
         setContentView(myWebView)
         mainContentResolver = applicationContext.contentResolver
+        wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager?
     }
 }
 
@@ -64,8 +65,7 @@ class WebAppInterface(private val mContext: Context) {
     @JavascriptInterface
     fun wifiOff()
     {
-
-//        WifiManager.WIFI_STATE_ENABLING
+        wifi?.isWifiEnabled = false
     }
 
 }
