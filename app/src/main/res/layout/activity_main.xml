@@ -6,26 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <WebView
-        android:id="@+id/myWebView"
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="81dp"
-        tools:layout_editor_absoluteY="101dp" >
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15sp"
+        android:layout_marginTop="16dp"
+        android:text="@string/name_of_label"
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="39sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintEnd_toStartOf="@+id/imageView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="toastMe"
-            android:text="@string/button"
-            android:visibility="visible" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/textview" />
-    </WebView>
-
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:layout_marginTop="5sp"
+        android:layout_marginEnd="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:backgroundTint="@color/colorBlack"
+        app:srcCompat="@drawable/gear" />
 </androidx.constraintlayout.widget.ConstraintLayout>

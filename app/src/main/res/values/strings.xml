@@ -2,4 +2,5 @@
     <string name="app_name">My Application</string>
     <string name="button">Button</string>
     <string name="textview">TextView</string>
+    <string name="name_of_label">Режимы</string>
 </resources>

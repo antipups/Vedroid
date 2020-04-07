@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.provider.Settings
@@ -21,14 +23,19 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
-        val myWebView = WebView(this)
-        myWebView.loadDataWithBaseURL(null, html_code,"text/html", "UTF-8", null);
-        myWebView.settings.javaScriptEnabled = true
-        myWebView.addJavascriptInterface(WebAppInterface(this), "Android")
-        setContentView(myWebView)
+        setContentView(R.layout.activity_main)
         mainContentResolver = applicationContext.contentResolver
+
+        if (!Settings.System.canWrite(this))         // проверяем можно ли делать то что нам надо (записывать настройки)
+        {
+            // если нельзя то создаем окно и запрашиваем у пользователя разрешения в нем
+            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+            intent.setData(Uri.parse("package:" + this.packageName));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
         wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager?
+
     }
 }
 
