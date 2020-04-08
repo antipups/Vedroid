@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15sp"
         android:layout_marginTop="16dp"
-        android:text="@string/name_of_label"
+        android:text="@string/name_of_label_of_mods"
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="39sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
@@ -32,4 +32,5 @@
         app:layout_constraintTop_toTopOf="parent"
         android:backgroundTint="@color/colorBlack"
         app:srcCompat="@drawable/gear" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

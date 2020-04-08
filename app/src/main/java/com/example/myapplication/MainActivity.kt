@@ -5,12 +5,15 @@ import android.bluetooth.BluetoothAdapter
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.provider.Settings
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
+import android.view.View
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -20,7 +23,7 @@ var wifi : WifiManager? = null
 
 
 class MainActivity : AppCompatActivity() {
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -36,43 +39,52 @@ class MainActivity : AppCompatActivity() {
         }
         wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager?
 
+        val cog = findViewById<ImageView>(R.id.imageView)
+        cog.setOnClickListener(View.OnClickListener
+        {
+            val settings_intent = Intent(".settingsActivity")
+            startActivity(settings_intent)
+        })
+
     }
+
+
 }
 
 
-class WebAppInterface(private val mContext: Context) {
-
-    @JavascriptInterface
-    fun showToast(toast: String)
-    {
-        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
-    }
-
-    @JavascriptInterface
-    fun bluetoothOn()
-    {
-        val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (!btAdapter.isEnabled) btAdapter.enable()
-    }
-
-    @JavascriptInterface
-    fun brightness_half()
-    {
-        Settings.System.putInt(mainContentResolver, Settings.System.SCREEN_BRIGHTNESS, 255/2)
-    }
-
-    @JavascriptInterface
-    fun bluetoothOff()
-    {
-        val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (btAdapter.isEnabled) btAdapter.disable()
-    }
-
-
-    @JavascriptInterface
-    fun wifiOff()
-    {
-        wifi?.isWifiEnabled = false
-    }
-
-}
+//class WebAppInterface(private val mContext: Context) {
+//
+//    @JavascriptInterface
+//    fun showToast(toast: String)
+//    {
+//        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
+//    }
+//
+//    @JavascriptInterface
+//    fun bluetoothOn()
+//    {
+//        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+//        if (!btAdapter.isEnabled) btAdapter.enable()
+//    }
+//
+//    @JavascriptInterface
+//    fun brightness_half()
+//    {
+//        Settings.System.putInt(mainContentResolver, Settings.System.SCREEN_BRIGHTNESS, 255/2)
+//    }
+//
+//    @JavascriptInterface
+//    fun bluetoothOff()
+//    {
+//        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+//        if (btAdapter.isEnabled) btAdapter.disable()
+//    }
+//
+//
+//    @JavascriptInterface
+//    fun wifiOff()
+//    {
+//        wifi?.isWifiEnabled = false
+//    }
+//
+//}
