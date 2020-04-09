@@ -1,21 +1,22 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.view.WindowManager
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import java.io.BufferedWriter
+import java.io.FileOutputStream
+import java.io.FileWriter
 
 
 var mainContentResolver : ContentResolver? = null
@@ -23,7 +24,6 @@ var wifi : WifiManager? = null
 
 
 class MainActivity : AppCompatActivity() {
-    @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
