@@ -59,22 +59,22 @@ class settingsActivity : AppCompatActivity() {
         })
 
         button_ok.setOnClickListener(View.OnClickListener {
-            var result_property_mode : String = ""
+            var result_property_mode = ""
 
             if (edit_title.text.isNotEmpty())
             {
-                result_property_mode += "{\n\tName_Mode:" + edit_title.text.toString() + "\n"
+                result_property_mode += "//\n\tName_Mode:" + edit_title.text.toString() + "\n"
                 if (switch_wifi.isEnabled) result_property_mode += "\twifi:" + switch_wifi.isChecked.toString() + "\n"
                 if (switch_bluetooth.isEnabled) result_property_mode += "\tbluetooth:" + switch_bluetooth.isChecked.toString() + "\n"
                 if (switch_dist.isEnabled) result_property_mode += "\tdist:" + switch_dist.isChecked.toString() + "\n"
                 if (!seekBar_brigtness.isInvisible) result_property_mode += "\tbrightness:" + seekBar_brigtness.progress.toString() + "\n"
 
                 val older_mods : String =  openFileInput("config.cfg").bufferedReader().readLines().joinToString ( separator="\n" )
-                println(older_mods)
+//                println(older_mods)
 
                 val writer_to_config : FileOutputStream = openFileOutput("config.cfg", Context.MODE_PRIVATE)
-                writer_to_config.write(("${older_mods + result_property_mode}\n}\n\n").toByteArray())
-                println("${older_mods + result_property_mode}\n}\n\n")
+                writer_to_config.write(("${older_mods + result_property_mode}\n//\n\n").toByteArray())
+//                println("${older_mods + result_property_mode}\n}\n\n")
                 writer_to_config.close()
             }
             else Toast.makeText(this, "Введите название режима", Toast.LENGTH_LONG).show()
