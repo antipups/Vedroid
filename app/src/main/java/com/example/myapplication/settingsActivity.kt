@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.core.view.isInvisible
 import kotlinx.android.synthetic.main.activity_settings.*
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
 
 
 class settingsActivity : AppCompatActivity() {
@@ -69,13 +71,19 @@ class settingsActivity : AppCompatActivity() {
                 if (switch_dist.isEnabled) result_property_mode += "\tdist:" + switch_dist.isChecked.toString() + "\n"
                 if (!seekBar_brigtness.isInvisible) result_property_mode += "\tbrightness:" + seekBar_brigtness.progress.toString() + "\n"
 
-                val older_mods : String =  openFileInput("config.cfg").bufferedReader().readLines().joinToString ( separator="\n" )
-//                println(older_mods)
+                var older_mods : String
+                try {
+                    older_mods =  openFileInput("config.cfg").bufferedReader().readLines().joinToString ( separator="\n" )
+                }
+                catch (e: Exception)
+                {
+                    older_mods = ""
+                }
 
                 val writer_to_config : FileOutputStream = openFileOutput("config.cfg", Context.MODE_PRIVATE)
                 writer_to_config.write(("${older_mods + result_property_mode}\n//\n\n").toByteArray())
-//                println("${older_mods + result_property_mode}\n}\n\n")
                 writer_to_config.close()
+                finish()
             }
             else Toast.makeText(this, "Введите название режима", Toast.LENGTH_LONG).show()
 

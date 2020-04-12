@@ -1,27 +1,37 @@
 package com.example.myapplication
 
 
+import android.annotation.SuppressLint
+import android.app.ActionBar
+import android.bluetooth.BluetoothAdapter
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
+import android.graphics.Color.TRANSPARENT;
+import android.net.wifi.WifiManager
+import android.os.Environment
+import android.view.ViewGroup
+import androidx.core.view.marginEnd
+import androidx.core.view.setPadding
+import org.w3c.dom.Text
+import java.io.File
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
-
-//    private lateinit var mainContentResolver : ContentResolver
-//    private lateinit var wifi : WifiManager
-    private lateinit var list_of_mods : ListView
 
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        mainContentResolver = applicationContext.contentResolver
 
         // проверяем можно ли делать то что нам надо (записывать настройки)
         if (!Settings.System.canWrite(this))
@@ -33,7 +43,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent);
         }
 
-//        wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         // инициализация меню которое создано для создание модов
         val cog = findViewById<ImageView>(R.id.imageView)
@@ -50,9 +59,19 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     private fun print_mods()
     {
-        var mods : MutableList<String> =
-            openFileInput("config.cfg").bufferedReader().readLines().joinToString(separator = "\n").split("\n\n")
-                .toMutableList()
+        var mods : MutableList<String>
+        try {
+             mods =
+                openFileInput("config.cfg").bufferedReader().readLines().joinToString(separator = "\n").split("\n\n")
+                    .toMutableList()
+        }
+        catch (e: Exception)
+        {
+            Toast.makeText(this, "Создайте режим", Toast.LENGTH_LONG).show()
+            val settings_intent = Intent(".settingsActivity")
+            startActivity(settings_intent)
+            return
+        }
         if (mods.size > 1) mods.removeLast()
         val linear : TableLayout = findViewById(R.id.list_of_mods)
 
@@ -63,9 +82,9 @@ class MainActivity : AppCompatActivity() {
         attrs.text = "Атрибуты режима"
         var temp_row : TableRow = TableRow(this)
         temp_row.orientation = LinearLayout.HORIZONTAL
-        temp_row.addView(name_mode)
-        temp_row.addView(attrs)
+        modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
         linear.addView(temp_row)
+        linear.addView(hor_divider())
 
         for (mode in mods)
         {
@@ -73,62 +92,78 @@ class MainActivity : AppCompatActivity() {
             temp_row = TableRow(this)                             // создаем новый макет под каждую кнопку
             name_mode = TextView(this)                                  // название режима
             name_mode.text = temp_mode.substring(temp_mode.indexOf(":") + 1, temp_mode.indexOf("\n"))
-            temp_row.addView(name_mode)                                       // добавляем в лайаут название
             attrs = TextView(this)
             attrs.text = temp_mode.substring(startIndex = temp_mode.indexOf("\n") + 1)
-            temp_row.addView(attrs)
 
             temp_row.setOnClickListener(View.OnClickListener
             {
                 val test_ = it as TableRow
-                val text_ : TextView = test_.getVirtualChildAt(0) as TextView
-                println(text_.text)
-                println()
+                apply_changes(test_.getVirtualChildAt(2) as TextView)
             })
+            modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
             linear.addView(temp_row)
+            linear.addView(hor_divider())
         }
-
-//        list_of_mods = findViewById(R.id.list_of_mods)
-//        list_of_mods.adapter = ArrayAdapter(this, R.layout.activity_main, R.id.textView, mods)
 
     }
 
+    @SuppressLint("WrongConstant")
+    private fun modify_text_view(name : TextView, attrs : TextView): Array<TextView> {
+
+        attrs.textSize = 20f
+        attrs.textAlignment = 4
+        attrs.setBackgroundColor(Color.DKGRAY)
+
+        val text = TextView(this)
+        text.setBackgroundColor(Color.BLACK)
+        text.setTextColor(Color.BLACK)
+        text.textSize = 20f
+        var count = 0
+        for (sym in attrs.text) if (sym == ':') count++
+        text.text = "a".padStart(count, '\n')
+
+        name.textSize = 20f
+        name.textAlignment = 4
+        name.setBackgroundColor(Color.DKGRAY)
+
+        return arrayOf(name, text, attrs)
+    }
+
+    private fun hor_divider(): TableRow
+    {
+        val table_row = TableRow(this)
+        for (i in 1..2)
+        {
+            val t1 = TextView(this)
+            t1.textSize = 2f
+            t1.setTextColor(Color.BLACK)
+            t1.text = "a"
+            table_row.addView(t1)
+        }
+        table_row.setBackgroundColor(Color.BLACK)
+        return table_row
+    }
+
+    private fun apply_changes(textView: TextView)
+    {
+        println(textView.text)
+        val changes = textView.text.toString()
+        if (changes.indexOf("wifi") >= 0)
+        {
+            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            wifi.isWifiEnabled = """wifi:(true|false)""".toRegex().find(changes)?.value.toString().substring(5).toBoolean()
+        }
+        if (changes.indexOf("bluetooth") >= 0)
+        {
+            val btAdapter = BluetoothAdapter.getDefaultAdapter()
+            if ("""bluetooth:(true|false)""".toRegex().find(changes)?.value.toString().substring(10).toBoolean()) btAdapter.enable()
+            else btAdapter.disable()
+        }
+        if (changes.indexOf("brightness") >= 0)
+        {
+            val level = """brightness:\d{0,3}""".toRegex().find(changes)?.value.toString().substring(11).toInt()
+            Settings.System.putInt(applicationContext.contentResolver, Settings.System.SCREEN_BRIGHTNESS, level)
+        }
+    }
+
 }
-
-
-//class WebAppInterface(private val mContext: Context) {
-//
-//    @JavascriptInterface
-//    fun showToast(toast: String)
-//    {
-//        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
-//    }
-//
-//    @JavascriptInterface
-//    fun bluetoothOn()
-//    {
-//        val btAdapter = BluetoothAdapter.getDefaultAdapter()
-//        if (!btAdapter.isEnabled) btAdapter.enable()
-//    }
-//
-//    @JavascriptInterface
-//    fun brightness_half()
-//    {
-//        Settings.System.putInt(mainContentResolver, Settings.System.SCREEN_BRIGHTNESS, 255/2)
-//    }
-//
-//    @JavascriptInterface
-//    fun bluetoothOff()
-//    {
-//        val btAdapter = BluetoothAdapter.getDefaultAdapter()
-//        if (btAdapter.isEnabled) btAdapter.disable()
-//    }
-//
-//
-//    @JavascriptInterface
-//    fun wifiOff()
-//    {
-//        wifi?.isWifiEnabled = false
-//    }
-//
-//}
