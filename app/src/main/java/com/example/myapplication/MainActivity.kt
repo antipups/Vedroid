@@ -43,52 +43,49 @@ class MainActivity : AppCompatActivity() {
         print_mods()
     }
 
-    @ExperimentalStdlibApi
-    private fun print_mods()
+    fun output_pre_menu(linear: LinearLayout, temp_mode: String, name_mode: TextView, attrs: TextView, temp_row: TableRow)
     {
-        val db = FeedReaderContract.FeedReaderDbHelper(this)
-        db.getData()
-        var mods : MutableList<String>
-        try {
-             mods =
-                openFileInput("config.cfg").bufferedReader().readLines().joinToString(separator = "\n").split(
-                    "\n\n"
-                )
-                    .toMutableList()
-        }
-        catch (e: Exception)
-        {
-            Toast.makeText(this, "Создайте режим", Toast.LENGTH_LONG).show()
-            val settings_intent = Intent(".settingsActivity")
-            startActivity(settings_intent)
-            return
-        }
-        mods.forEach { println(it) }
-        if (mods.size > 1) mods.removeLast()
-        val linear : TableLayout = findViewById(R.id.list_of_mods)
-
-        var temp_mode = ""
-        var name_mode : TextView = TextView(this)
         name_mode.text = "Название режима"
-        var attrs : TextView = TextView(this)
         attrs.text = "Атрибуты режима"
-        var temp_row : TableRow = TableRow(this)
         temp_row.orientation = LinearLayout.HORIZONTAL
         modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
         linear.addView(temp_row)
         linear.addView(hor_divider())
+    }
+
+    @ExperimentalStdlibApi
+    private fun print_mods()
+    {
+        val db = FeedReaderContract.FeedReaderDbHelper(this)
+        val mods: MutableList<Setting> = db.getData()
+
+        if (mods.size == 0){
+            Toast.makeText(this, "Создайте режим", Toast.LENGTH_LONG).show()
+            startActivity(Intent(".settingsActivity"))
+            return
+        }
+
+//        mods.forEach { println(it) }
+//        if (mods.size > 1) mods.removeLast()
+        val linear : TableLayout = findViewById(R.id.list_of_mods)
+
+        var temp_mode = ""
+        var name_mode : TextView = TextView(this)
+        var attrs : TextView = TextView(this)
+        var temp_row : TableRow = TableRow(this)
+
+        output_pre_menu(linear, temp_mode, name_mode, attrs, temp_row)
 
         for (mode in mods)
         {
-            temp_mode = mode.substring(mode.indexOf("N") + 1)   //режем строку для норм вывода
             temp_row = TableRow(this)                             // создаем новый макет под каждую кнопку
             name_mode = TextView(this)                                  // название режима
-            name_mode.text = temp_mode.substring(
-                temp_mode.indexOf(":") + 1,
-                temp_mode.indexOf("\n")
-            )
+            name_mode.text = mode.title
             attrs = TextView(this)
-            attrs.text = temp_mode.substring(startIndex = temp_mode.indexOf("\n") + 1)
+            attrs.text = (if (mode.wifi != 2) "WiFi : ${mode_to_string(mode.wifi)}\n" else "") +
+                    (if (mode.bluetooth != 2) "Bluetooth : ${mode_to_string(mode.bluetooth)}\n" else "") +
+                    (if (mode.brightness != -1) "Яркость : ${mode.brightness}\n" else "")
+            attrs.text = attrs.text.slice(0..attrs.text.length - 2)
 
             temp_row.setOnClickListener(View.OnClickListener
             {
@@ -96,11 +93,14 @@ class MainActivity : AppCompatActivity() {
                 apply_changes(test_.getVirtualChildAt(2) as TextView)
             })
             modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
-
             linear.addView(temp_row)
             linear.addView(hor_divider())
         }
 
+    }
+
+    fun mode_to_string(code: Int): String{
+        return if (code == 1)  "вкл." else "выкл."
     }
 
     @SuppressLint("WrongConstant")
@@ -142,27 +142,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun apply_changes(textView: TextView)
     {
-        println(textView.text)
         val changes = textView.text.toString()
-        if (changes.indexOf("wifi") >= 0)
+        if (changes.indexOf("WiFi") >= 0)
         {
-//            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //            wifi.isWifiEnabled = """wifi:(true|false)""".toRegex().find(changes)?.value.toString().substring(5).toBoolean()
-//            wifi.wifiState
-            val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-            startActivityForResult(panelIntent, 1)
+            if ("""WiFi : (вкл|выкл).""".toRegex().find(changes)?.value.toString().substring(7) != if (wifi.wifiState == 1) "выкл." else "вкл."){
+                startActivityForResult(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY), 1)
+            }
         }
-        if (changes.indexOf("bluetooth") >= 0)
+        if (changes.indexOf("Bluetooth") >= 0)
         {
             val btAdapter = BluetoothAdapter.getDefaultAdapter()
-            if ("""bluetooth:(true|false)""".toRegex().find(changes)?.value.toString().substring(10).toBoolean()) btAdapter.enable()
+            if ("""Bluetooth : (вкл|выкл).""".toRegex().find(changes)?.value.toString().substring(12) == "вкл.") btAdapter.enable()
             else btAdapter.disable()
         }
-        if (changes.indexOf("brightness") >= 0)
+        if (changes.indexOf("Яркость") >= 0)
         {
-            val level = """brightness:\d{0,3}""".toRegex().find(changes)?.value.toString().substring(
-                11
-            ).toInt()
+            val level = """Яркость : \d{0,3}""".toRegex().find(changes)?.value.toString().substring(10).toInt()
             Settings.System.putInt(
                 applicationContext.contentResolver,
                 Settings.System.SCREEN_BRIGHTNESS,

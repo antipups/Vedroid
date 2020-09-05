@@ -54,7 +54,7 @@ object FeedReaderContract {
             Toast.makeText(context, "Ошибка добавления", Toast.LENGTH_LONG).show()
         }
 
-        fun getData(){
+        fun getData(): MutableList<Setting>{
             val db = this.readableDatabase
             val cursor = db.rawQuery("SELECT * FROM ${FeedEntry.TABLE_NAME}", null)
             val rows: MutableList<Setting> = ArrayList()
@@ -67,8 +67,9 @@ object FeedReaderContract {
                         cursor.getString(4).toInt()
                     ))
                 }
-                println(rows)
+//                println(rows)
             }
+            return rows
         }
     }
 }
