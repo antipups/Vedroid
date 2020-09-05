@@ -2,28 +2,17 @@ package com.example.myapplication
 
 
 import android.annotation.SuppressLint
-import android.app.ActionBar
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
-import android.graphics.Color.TRANSPARENT;
-import android.net.wifi.WifiManager
-import android.os.Environment
-import android.view.ViewGroup
-import androidx.core.view.marginEnd
-import androidx.core.view.setPadding
-import org.w3c.dom.Text
-import java.io.File
-import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -45,24 +34,26 @@ class MainActivity : AppCompatActivity() {
 
 
         // инициализация меню которое создано для создание модов
-        val cog = findViewById<ImageView>(R.id.imageView)
-        cog.setOnClickListener(View.OnClickListener
+        findViewById<ImageView>(R.id.imageView).setOnClickListener(View.OnClickListener
         {
             val settings_intent = Intent(".settingsActivity")
             startActivity(settings_intent)
         })
 
         print_mods()
-
     }
 
     @ExperimentalStdlibApi
     private fun print_mods()
     {
+        val db = FeedReaderContract.FeedReaderDbHelper(this)
+        db.getData()
         var mods : MutableList<String>
         try {
              mods =
-                openFileInput("config.cfg").bufferedReader().readLines().joinToString(separator = "\n").split("\n\n")
+                openFileInput("config.cfg").bufferedReader().readLines().joinToString(separator = "\n").split(
+                    "\n\n"
+                )
                     .toMutableList()
         }
         catch (e: Exception)
@@ -72,6 +63,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(settings_intent)
             return
         }
+        mods.forEach { println(it) }
         if (mods.size > 1) mods.removeLast()
         val linear : TableLayout = findViewById(R.id.list_of_mods)
 
@@ -91,7 +83,10 @@ class MainActivity : AppCompatActivity() {
             temp_mode = mode.substring(mode.indexOf("N") + 1)   //режем строку для норм вывода
             temp_row = TableRow(this)                             // создаем новый макет под каждую кнопку
             name_mode = TextView(this)                                  // название режима
-            name_mode.text = temp_mode.substring(temp_mode.indexOf(":") + 1, temp_mode.indexOf("\n"))
+            name_mode.text = temp_mode.substring(
+                temp_mode.indexOf(":") + 1,
+                temp_mode.indexOf("\n")
+            )
             attrs = TextView(this)
             attrs.text = temp_mode.substring(startIndex = temp_mode.indexOf("\n") + 1)
 
@@ -101,6 +96,7 @@ class MainActivity : AppCompatActivity() {
                 apply_changes(test_.getVirtualChildAt(2) as TextView)
             })
             modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
+
             linear.addView(temp_row)
             linear.addView(hor_divider())
         }
@@ -108,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("WrongConstant")
-    private fun modify_text_view(name : TextView, attrs : TextView): Array<TextView> {
+    private fun modify_text_view(name: TextView, attrs: TextView): Array<TextView> {
 
         attrs.textSize = 20f
         attrs.textAlignment = 4
@@ -150,8 +146,11 @@ class MainActivity : AppCompatActivity() {
         val changes = textView.text.toString()
         if (changes.indexOf("wifi") >= 0)
         {
-            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            wifi.isWifiEnabled = """wifi:(true|false)""".toRegex().find(changes)?.value.toString().substring(5).toBoolean()
+//            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+//            wifi.isWifiEnabled = """wifi:(true|false)""".toRegex().find(changes)?.value.toString().substring(5).toBoolean()
+//            wifi.wifiState
+            val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            startActivityForResult(panelIntent, 1)
         }
         if (changes.indexOf("bluetooth") >= 0)
         {
@@ -161,8 +160,14 @@ class MainActivity : AppCompatActivity() {
         }
         if (changes.indexOf("brightness") >= 0)
         {
-            val level = """brightness:\d{0,3}""".toRegex().find(changes)?.value.toString().substring(11).toInt()
-            Settings.System.putInt(applicationContext.contentResolver, Settings.System.SCREEN_BRIGHTNESS, level)
+            val level = """brightness:\d{0,3}""".toRegex().find(changes)?.value.toString().substring(
+                11
+            ).toInt()
+            Settings.System.putInt(
+                applicationContext.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS,
+                level
+            )
         }
     }
 

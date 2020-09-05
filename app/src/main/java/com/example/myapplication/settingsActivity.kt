@@ -65,24 +65,26 @@ class settingsActivity : AppCompatActivity() {
 
             if (edit_title.text.isNotEmpty())
             {
-                result_property_mode += "//\n\tName_Mode:" + edit_title.text.toString() + "\n"
-                if (switch_wifi.isEnabled) result_property_mode += "\twifi:" + switch_wifi.isChecked.toString() + "\n"
-                if (switch_bluetooth.isEnabled) result_property_mode += "\tbluetooth:" + switch_bluetooth.isChecked.toString() + "\n"
-                if (switch_dist.isEnabled) result_property_mode += "\tdist:" + switch_dist.isChecked.toString() + "\n"
-                if (!seekBar_brigtness.isInvisible) result_property_mode += "\tbrightness:" + seekBar_brigtness.progress.toString() + "\n"
-
-                var older_mods : String
-                try {
-                    older_mods =  openFileInput("config.cfg").bufferedReader().readLines().joinToString ( separator="\n" )
-                }
-                catch (e: Exception)
-                {
-                    older_mods = ""
-                }
-
-                val writer_to_config : FileOutputStream = openFileOutput("config.cfg", Context.MODE_PRIVATE)
-                writer_to_config.write(("${older_mods + result_property_mode}\n//\n\n").toByteArray())
-                writer_to_config.close()
+//                result_property_mode += "//\n\tName_Mode:" + edit_title.text.toString() + "\n"
+//                if (switch_wifi.isEnabled) result_property_mode += "\twifi:" + switch_wifi.isChecked.toString() + "\n"
+//                if (switch_bluetooth.isEnabled) result_property_mode += "\tbluetooth:" + switch_bluetooth.isChecked.toString() + "\n"
+//                if (switch_dist.isEnabled) result_property_mode += "\tdist:" + switch_dist.isChecked.toString() + "\n"
+//                if (!seekBar_brigtness.isInvisible) result_property_mode += "\tbrightness:" + seekBar_brigtness.progress.toString() + "\n"
+//
+//                var older_mods : String
+//                try {
+//                    older_mods =  openFileInput("config.cfg").bufferedReader().readLines().joinToString ( separator="\n" )
+//                }
+//                catch (e: Exception)
+//                {
+//                    older_mods = ""
+//                }
+//
+//                val writer_to_config : FileOutputStream = openFileOutput("config.cfg", Context.MODE_PRIVATE)
+//                writer_to_config.write(("${older_mods + result_property_mode}\n//\n\n").toByteArray())
+//                writer_to_config.close()
+                val db = FeedReaderContract.FeedReaderDbHelper(this)
+                db.insertData(conveter())
                 finish()
             }
             else Toast.makeText(this, "Введите название режима", Toast.LENGTH_LONG).show()
@@ -95,6 +97,16 @@ class settingsActivity : AppCompatActivity() {
 //        println()
     }
 
+        fun conveter(): Setting {
+            val title = edit_title.text.toString()
+            var wifi: Int = 2
+            var bluetooth: Int = 2
+            var brightness: Int = -1
+            if (switch_wifi.isEnabled) wifi =  if (switch_wifi.isChecked) 1 else 0
+            if (switch_bluetooth.isEnabled) bluetooth =  if (switch_bluetooth.isChecked) 1 else 0
+            if (!seekBar_brigtness.isInvisible) brightness = seekBar_brigtness.progress
+            return Setting(title, wifi, bluetooth, brightness)
+        }
 
 
 
