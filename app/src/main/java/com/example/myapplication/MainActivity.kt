@@ -2,17 +2,24 @@ package com.example.myapplication
 
 
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +46,23 @@ class MainActivity : AppCompatActivity() {
         })
 
         print_mods()
+    }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_id)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("id", name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     @ExperimentalStdlibApi
@@ -91,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             temp_row.setOnClickListener(View.OnClickListener
             {
                 val test_ = it as TableRow
-                apply_changes(test_.getVirtualChildAt(2) as TextView)
+                apply_changes(test_.getVirtualChildAt(0) as TextView, test_.getVirtualChildAt(2) as TextView)
             })
 
             temp_row.setOnLongClickListener(View.OnLongClickListener
@@ -150,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         return table_row
     }
 
-    private fun apply_changes(textView: TextView)
+    private fun apply_changes(title: TextView, textView: TextView)
     {
         val changes = textView.text.toString()
         if (changes.indexOf("WiFi") >= 0)
@@ -175,6 +199,21 @@ class MainActivity : AppCompatActivity() {
                 Settings.System.SCREEN_BRIGHTNESS,
                 level
             )
+        }
+
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+
+        createNotificationChannel()
+        val notification = NotificationCompat.Builder(this, "id")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("Установлен режим: " + title.text)
+            .setContentText("Настройки: $changes")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true).build()
+        with(NotificationManagerCompat.from(this)) {
+            // notificationId is a unique int for each notification that you must define
+            notify(1, notification)
         }
     }
 

@@ -4,19 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorGrey"
     tools:context=".change_activity">
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textView"
@@ -30,7 +29,7 @@
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="468dp">
+            android:layout_height="wrap_content">
 
             <TableRow
                 android:layout_width="match_parent"
@@ -106,25 +105,24 @@
                     android:enabled="false" />
             </TableRow>
         </TableLayout>
-
     </LinearLayout>
 
     <Button
-        android:id="@+id/button_delete"
-        android:layout_width="208dp"
-        android:layout_height="50dp"
-        android:text="Удалить"
-        app:layout_constraintBottom_toBottomOf="@+id/button_change"
+        android:id="@+id/button_change"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/button_delete"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_change" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Изменить" />
 
     <Button
-        android:id="@+id/button_change"
-        android:layout_width="208dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="3dp"
-        android:text="Изменить"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:id="@+id/button_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Удалить" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
