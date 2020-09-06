@@ -71,5 +71,23 @@ object FeedReaderContract {
             }
             return rows
         }
+
+        fun deleteData(title: String){
+            val db = this.writableDatabase
+//            val cursor = db.rawQuery("SELECT * FROM ${FeedEntry.TABLE_NAME}", null)
+            db.delete(FeedEntry.TABLE_NAME, "${FeedEntry.TITLE_SETTING} = ?", arrayOf(title))
+        }
+
+        fun updateData(setting: Setting){
+            val db = this.writableDatabase
+//            val cursor = db.rawQuery("SELECT * FROM ${FeedEntry.TABLE_NAME}", null)
+            val values = ContentValues().apply {
+                put(FeedEntry.TITLE_SETTING, setting.title)
+                put(FeedEntry.COL_WIFI, setting.wifi)
+                put(FeedEntry.COL_BLUETOOTH, setting.bluetooth)
+                put(FeedEntry.COL_BRIGHTNESS, setting.brightness)
+            }
+            db.update(FeedEntry.TABLE_NAME, values,"${FeedEntry.TITLE_SETTING} = ?", arrayOf(setting.title))
+        }
     }
 }

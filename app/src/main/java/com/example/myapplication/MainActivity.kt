@@ -32,14 +32,18 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent);
         }
 
-
         // инициализация меню которое создано для создание модов
         findViewById<ImageView>(R.id.imageView).setOnClickListener(View.OnClickListener
         {
-            val settings_intent = Intent(".settingsActivity")
-            startActivity(settings_intent)
+            startActivity(Intent(".settingsActivity"))
         })
 
+        print_mods()
+    }
+
+    @ExperimentalStdlibApi
+    override fun onRestart() {
+        super.onRestart()
         print_mods()
     }
 
@@ -64,17 +68,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(".settingsActivity"))
             return
         }
-
-//        mods.forEach { println(it) }
-//        if (mods.size > 1) mods.removeLast()
         val linear : TableLayout = findViewById(R.id.list_of_mods)
+        linear.removeAllViews()
 
-        var temp_mode = ""
         var name_mode : TextView = TextView(this)
         var attrs : TextView = TextView(this)
         var temp_row : TableRow = TableRow(this)
 
-        output_pre_menu(linear, temp_mode, name_mode, attrs, temp_row)
+        output_pre_menu(linear, "", name_mode, attrs, temp_row)
 
         for (mode in mods)
         {
@@ -91,6 +92,15 @@ class MainActivity : AppCompatActivity() {
             {
                 val test_ = it as TableRow
                 apply_changes(test_.getVirtualChildAt(2) as TextView)
+            })
+
+            temp_row.setOnLongClickListener(View.OnLongClickListener
+            {
+                val test_ = it as TableRow
+                startActivity(Intent(".change_activity").apply {
+                    putExtra("title", (test_.getVirtualChildAt(0) as TextView).text.toString())
+                })
+                return@OnLongClickListener true
             })
             modify_text_view(name_mode, attrs).forEach { temp_row.addView(it) }
             linear.addView(temp_row)
@@ -148,7 +158,7 @@ class MainActivity : AppCompatActivity() {
             val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //            wifi.isWifiEnabled = """wifi:(true|false)""".toRegex().find(changes)?.value.toString().substring(5).toBoolean()
             if ("""WiFi : (вкл|выкл).""".toRegex().find(changes)?.value.toString().substring(7) != if (wifi.wifiState == 1) "выкл." else "вкл."){
-                startActivityForResult(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY), 1)
+                startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
             }
         }
         if (changes.indexOf("Bluetooth") >= 0)
